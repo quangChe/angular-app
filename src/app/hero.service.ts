@@ -11,6 +11,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class HeroService {
   private heroesUrl = 'api/heroes';
+  
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
 
   constructor(
     private http: HttpClient,
@@ -34,6 +38,14 @@ export class HeroService {
       .pipe(
         tap(_ => this.log(`fetch hero by id: ${id.toString()}`)),
         catchError(this.handleError<Hero>('fetch hero'))
+      )
+  }
+
+  updateHero(hero: Hero): Observable<any> {
+    return this.http.put(this.heroesUrl, hero, this.httpOptions)
+      .pipe(
+        tap(_ => this.log(`updated hero with id: ${hero.id}`)),
+        catchError(this.handleError<any>('update hero'))
       )
   }
 
