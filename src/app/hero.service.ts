@@ -11,7 +11,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class HeroService {
   private heroesUrl = 'api/heroes';
-  
+
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
@@ -46,6 +46,14 @@ export class HeroService {
       .pipe(
         tap(_ => this.log(`updated hero with id: ${hero.id}`)),
         catchError(this.handleError<any>('update hero'))
+      )
+  }
+
+  addHero(hero: Hero): Observable<Hero> {
+    return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions)
+      .pipe(
+        tap((newHero: Hero) => this.log(`added hero with id: ${newHero.id}`)),
+        catchError(this.handleError<Hero>('add hero'))
       )
   }
 
