@@ -24,6 +24,20 @@ export class HeroService {
     this.messageService.add(`HeroService: ${message}`)
   }
 
+  private handleError<T> (operation: string = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      this.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    }
+  }
+
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(this.heroesUrl)
       .pipe(
@@ -57,17 +71,16 @@ export class HeroService {
       )
   }
 
-  private handleError<T> (operation: string = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
+  deleteHero(hero: Hero | number): Observable<any> {
+    const id = typeof hero === 'number' ? hero : hero.id;
+    const url = `${this.heroesUrl}/${id}`;
 
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-
-      // TODO: better job of transforming error for user consumption
-      this.log(`${operation} failed: ${error.message}`);
-
-      // Let the app keep running by returning an empty result.
-      return of(result as T);
-    }
+    return this.http.delete(url, this.httpOptions)
+      .pipe(
+        tap(_ => this.log(`removed hero with id: ${id}`)),
+        catchError(this.handleError<Hero>('delete hero'))
+      )
   }
+
+  
 }
